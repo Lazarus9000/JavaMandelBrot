@@ -15,7 +15,7 @@ public class mandelCalc {
 	public BufferedImage outputImage;
 	
 	//These control the math calculations
-	//higher iteratens giver longer computation
+	//higher iterations giver longer computation
 	private int iterations = 200;
 	//Limit affects appearance and to some degree computation time
 	private int limit = 6;
