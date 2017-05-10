@@ -9,7 +9,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;  
 
 public class JavafxSample extends Application { 
-   //@Override
+   //@Overrideasdf
 	 Image image;
 	 mandelCalc render = new mandelCalc(400,400);;
 	 ImageView imageView = new ImageView();
