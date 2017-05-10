@@ -8,7 +8,7 @@ import javax.swing.JLabel;
 public class mandelCalc {
 	//consider implementing using bigdecimal - requires reimplementing a lot of arithmetic though
 	//private BigDecimal bxmin = new BigDecimal("0.0");
-	
+	//adfs
 	//private double xmin = (double) -0.8, xmax = (double) -0.7;
 	private double xmin = (double) -2.0, xmax = (double) 1.5;
 	//private double ymin = (double) -0.3, ymax = (double) -0.2;
