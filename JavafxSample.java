@@ -9,11 +9,9 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;  
 
 public class JavafxSample extends Application { 
-   //@Overrideasdf
 	 Image image;
 	 mandelCalc render = new mandelCalc(400,400);;
 	 ImageView imageView = new ImageView();
-	 
 	 
 	 public void start(Stage primaryStage) throws Exception {            
 	   image = SwingFXUtils.toFXImage(render.outputImage, null);
