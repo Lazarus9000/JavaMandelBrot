@@ -1,3 +1,6 @@
+import java.util.Timer;
+import java.util.TimerTask;
+
 import javafx.application.Application; 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
@@ -14,6 +17,49 @@ public class JavafxSample extends Application {
 	 //Convert from BufferedImage to javaFX image
 	 Image image = SwingFXUtils.toFXImage(render.outputImage, null);
 	 ImageView imageView = new ImageView();
+	 
+	 class recZoom extends TimerTask {
+
+		    private final int x, y;
+            private double zoom;
+
+            recZoom ( int x, int y, double zoom )
+		    {
+		      this.x = x;
+		      this.y = y;
+		      this.zoom = zoom;
+		    }
+
+		    public void run() {
+		    	//x = 
+		    	render.zoom(x, y, zoom);
+	  	        
+	  	    	//Debug
+	  	    	//System.out.println("mouse click detected! " + e.getButton() + " x: " + e.getX());
+	  	        
+	  	    	//Redraw
+	  	        image = SwingFXUtils.toFXImage(render.outputImage, null);
+	  	        imageView.setImage(image);
+		    }
+		}
+	 
+	 Timer timer = new Timer();
+	 
+//	 recZoom task = new recZoom()
+//	 {
+//	         public void run()
+//	         {
+//	        	 render.zoom(200, 200, 0.49);
+//	            	  	        
+//	  	    	//Debug
+//	  	    	//System.out.println("mouse click detected! " + e.getButton() + " x: " + e.getX());
+//	  	        
+//	  	    	//Redraw
+//	  	        image = SwingFXUtils.toFXImage(render.outputImage, null);
+//	  	        imageView.setImage(image);
+//	         }
+//
+//	 };
 	 
 	 //Initialization of application
 	 public void start(Stage primaryStage) throws Exception {            
@@ -59,7 +105,8 @@ public class JavafxSample extends Application {
            
  	    	//Zoom in on left mousebutton
            case PRIMARY: 	
-           	render.zoom((int)e.getX(), (int)e.getY(), 0.25);
+        	   timer.scheduleAtFixedRate(new recZoom((int)e.getX(), (int)e.getY(), 0.49),0,100);
+           	//render.zoom((int)e.getX(), (int)e.getY(), 0.49);
            	break;
            
            //Navigate on middle mousebutton (basicly a zoom without magnification)
@@ -69,7 +116,7 @@ public class JavafxSample extends Application {
            	
            //Zoom out on right mousebutton                
            case SECONDARY:	
-           	render.zoom((int)e.getX(), (int)e.getY(), 0.75);
+           	render.zoom((int)e.getX(), (int)e.getY(), 0.51);
            	break;
            	
            default:					
