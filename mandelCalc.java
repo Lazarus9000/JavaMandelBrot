@@ -5,9 +5,9 @@ public class mandelCalc {
 	//consider implementing using bigdecimal - requires reimplementing a lot of arithmetic though
 	//private BigDecimal bxmin = new BigDecimal("0.0");
 	//private double xmin = (double) -0.8, xmax = (double) -0.7;
-	private double xmin = (double) -2.0, xmax = (double) 1.5;
+	private double xmin = (double) -2.0, xmax = (double) 1;
 	//private double ymin = (double) -0.3, ymax = (double) -0.2;
-	private  double ymin = (double) -2.0, ymax = (double) 1.5;
+	private  double ymin = (double) -1.5, ymax = (double) 1.5;
 	
 	private int imgwidth = 800;
 	private int imgheight = 800;
