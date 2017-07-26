@@ -21,9 +21,9 @@ public class mandelCalc {
 	private int limit = 6;
 	
 	//These are used for math, declared here to save time on declarations
-	private float re = 0;
-	private float im = 0;
-	private float x_new = 0;
+	private double re = 0;
+	private double im = 0;
+	private double x_new = 0;
 	private int iter = 0;
 	
 	//Main constructor
@@ -36,12 +36,12 @@ public class mandelCalc {
 	
 	//Overloaded constructor with default value
 	public mandelCalc() {
-		this(400,400);
+		this(600,600);
 	}
 	
 	//The math
 	//This is where the magic happens
-	public int mandelmath(float x, float y) {
+	public int mandelmath(double x, double y) {
 		re = x;
 		im = y;
 		x_new = 0;
@@ -61,8 +61,8 @@ public class mandelCalc {
 		
 	}
 	
-	public int mandelmath(double x, double y) {
-		return mandelmath((float)x, (float)y);
+	public int mandelmath(float x, float y) {
+		return mandelmath((double)x, (double)y);
 	}
 	
 	public void zoom(int x, int y, double scale) {
