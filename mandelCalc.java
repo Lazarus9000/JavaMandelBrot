@@ -26,6 +26,9 @@ public class mandelCalc {
 	private float x_new = 0;
 	private int iter = 0;
 	
+	//For letting the wold now the current zoom
+	private double extscale = 0;
+	
 	//Main constructor
 	public mandelCalc(int width, int height) {
 		imgwidth = width;
@@ -65,7 +68,7 @@ public class mandelCalc {
 		return mandelmath((float)x, (float)y);
 	}
 	
-	public void zoom(int x, int y, double scale) {
+	public void zoom(double x, double y, double scale) {
 		//Inputs are the center of the zoom and the scale
 		//scale is defined by 0.5, being no zoom
 		//+0.5 zooms out
@@ -74,6 +77,8 @@ public class mandelCalc {
 		//Find current 'scale'
 		double xscale = Math.abs(xmax - xmin);
 		double yscale = Math.abs(ymax - ymin);
+		
+		extscale = xscale;
 		
 		//Find clicked point in the coordinate system
 		double newCenterx = ((double)x/imgwidth)*xscale+xmin;
@@ -94,7 +99,9 @@ public class mandelCalc {
 		
 	}
 
-	
+	public double getScale() {
+		return extscale;
+	}
 	
 	private void drawMandel() {
         //final BufferedImage scaled = new BufferedImage(
