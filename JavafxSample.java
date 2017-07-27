@@ -4,13 +4,16 @@ import java.awt.PointerInfo;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.swing.event.ChangeListener;
+
 import javafx.application.Application;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -25,8 +28,8 @@ public class JavafxSample extends Application {
 	ImageView imageView = new ImageView();
 	Timer timerin;
 	Timer timerout;
-	Button button = new Button();
-    
+	CheckBox precisionCheck = new CheckBox();
+    boolean precision = false;
 
 	class recZoom extends TimerTask {
 
@@ -91,9 +94,11 @@ public class JavafxSample extends Application {
 			
 		// Add image to group
 		group.getChildren().add(imageView);
-		button.setText("OK");
-	    button.setFont(new Font("Tahoma", 24));
-	    group.getChildren().add(button);
+		precisionCheck.setText("Toggle high precision");
+		precisionCheck.setFont(new Font("Tahoma", 12));
+		precisionCheck.setOnAction(setprecision);
+		
+	    group.getChildren().add(precisionCheck);
 	    // Creating a Scene by passing the group object, height and width
 		Scene scene = new Scene(group, 400, 400);
 
@@ -119,6 +124,17 @@ public class JavafxSample extends Application {
 	public static void main(String args[]) {
 		launch(args);
 	}
+	
+	//Handler for precision
+	EventHandler setprecision = new EventHandler<ActionEvent>() {
+	    public void handle(ActionEvent event) {
+	        if (event.getSource() instanceof CheckBox) {
+	            CheckBox chk = (CheckBox) event.getSource();
+	            System.out.println("Action performed on checkbox " + chk.getText() + " - " + chk.isSelected());
+	            
+	        }
+	    }
+	};
 
 	// Handler for mouseclicks for navigating the set
 	EventHandler<MouseEvent> mouseZoomstart = new EventHandler<MouseEvent>() {
