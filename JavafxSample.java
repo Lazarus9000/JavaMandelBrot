@@ -10,9 +10,11 @@ import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 public class JavafxSample extends Application {
@@ -21,13 +23,17 @@ public class JavafxSample extends Application {
 	// Convert from BufferedImage to javaFX image
 	Image image = SwingFXUtils.toFXImage(render.outputImage, null);
 	ImageView imageView = new ImageView();
-	Timer timer;
+	Timer timerin;
+	Timer timerout;
+	Button button = new Button();
+    
 
 	class recZoom extends TimerTask {
 
 		private final int x, y;
 		private double zoom;
-
+		public boolean running = false; 
+		
 		recZoom(int x, int y, double zoom) {
 			this.x = x;
 			this.y = y;
@@ -82,15 +88,18 @@ public class JavafxSample extends Application {
 		// Creating a Group object
 		Group group = new Group();
 
+			
 		// Add image to group
 		group.getChildren().add(imageView);
-
-		// Creating a Scene by passing the group object, height and width
+		button.setText("OK");
+	    button.setFont(new Font("Tahoma", 24));
+	    group.getChildren().add(button);
+	    // Creating a Scene by passing the group object, height and width
 		Scene scene = new Scene(group, 400, 400);
 
 		// Add listener for mouseclicks
-		scene.addEventFilter(MouseEvent.MOUSE_PRESSED, mouseZoomstart);
-		scene.addEventFilter(MouseEvent.MOUSE_RELEASED, mouseZoomstop);
+		imageView.addEventFilter(MouseEvent.MOUSE_PRESSED, mouseZoomstart);
+		imageView.addEventFilter(MouseEvent.MOUSE_RELEASED, mouseZoomstop);
 
 		// Setting the title to Stage.
 		primaryStage.setTitle("Mandelbrot Set");
@@ -120,13 +129,13 @@ public class JavafxSample extends Application {
 			// Zoom in on left mousebutton
 			case PRIMARY:
 				System.out.println("left mouse down");
-				timer = new Timer();
-				timer.scheduleAtFixedRate(new recZoom((int) e.getX(), (int) e.getY(), 0.49), 0, 50);
+				timerin = new Timer();
+				timerin.scheduleAtFixedRate(new recZoom((int) e.getX(), (int) e.getY(), 0.49), 0, 50);
 				break;
 			case SECONDARY:
 				System.out.println("right mouse down");
-				timer = new Timer();
-				timer.scheduleAtFixedRate(new recZoom((int) e.getX(), (int) e.getY(), 0.51), 0, 50);
+				timerout = new Timer();
+				timerout.scheduleAtFixedRate(new recZoom((int) e.getX(), (int) e.getY(), 0.51), 0, 50);
 				break;
 
 			default:
@@ -147,9 +156,24 @@ public class JavafxSample extends Application {
 	EventHandler<MouseEvent> mouseZoomstop = new EventHandler<MouseEvent>() {
 		public void handle(MouseEvent e) {
 
-			timer.cancel();
-			timer.purge();
-			System.out.println("left mouse up");
+			switch (e.getButton()) {
+
+			// Zoom in on left mousebutton
+			case PRIMARY:
+				timerin.cancel();
+				timerin.purge();
+				System.out.println("left mouse up");
+				break;
+			case SECONDARY:
+				timerout.cancel();
+				timerout.purge();
+				System.out.println("right mouse up");
+				break;
+
+			default:
+				System.out.println("Mouse event not recognized");
+				return;
+			}
 
 			// Redraw
 			image = SwingFXUtils.toFXImage(render.outputImage, null);
