@@ -23,11 +23,26 @@ public class mandelCalc {
 	//These are used for math, declared here to save time on declarations
 	private double re = 0;
 	private double im = 0;
+	private float fre = 0;
+	private float fim = 0;
 	private double x_new = 0;
+	private float fx_new = 0;
 	private int iter = 0;
 	
 	//For letting the wold now the current zoom
 	private double extscale = 0;
+	
+	//Precision toggle
+	private boolean precision = false;
+	
+	public boolean getPrecision() {
+		return precision;
+	}
+	
+	public void setPrecision(boolean prec) {
+		precision = prec;
+	}
+	
 	
 	//Main constructor
 	public mandelCalc(int width, int height) {
@@ -45,18 +60,38 @@ public class mandelCalc {
 	//The math
 	//This is where the magic happens
 	public int mandelmath(double x, double y) {
-		re = x;
-		im = y;
-		x_new = 0;
-		iter = 0;
-	    
-        //Iterate the calculation below until max iterations have been met, 
-	    //or the result is out of bounds
-	    while(iter < iterations && x*x+y*y <= limit) {
-	    	x_new = x*x - y*y + re;
-			y = 2*x*y + im;
-			x = x_new;
-			iter++;
+		if(precision) {
+			re = x;
+			im = y;
+			x_new = 0;
+			
+			iter = 0;
+		    
+	        //Iterate the calculation below until max iterations have been met, 
+		    //or the result is out of bounds
+		    while(iter < iterations && x*x+y*y <= limit) {
+		    	x_new = x*x - y*y + re;
+				y = 2*x*y + im;
+				x = x_new;
+				iter++;
+			}
+		} else {
+			fre = (float)x;
+			fim = (float)y;
+			float fx = (float)x;
+			float fy = (float)y;
+			fx_new = 0;
+			
+			iter = 0;
+		    
+	        //Iterate the calculation below until max iterations have been met, 
+		    //or the result is out of bounds
+		    while(iter < iterations && fx*fx+fy*fy <= limit) {
+		    	fx_new = fx*fx - fy*fy + fre;
+				fy = 2*fx*fy + fim;
+				fx = fx_new;
+				iter++;
+		    }
 	    }
 	    
 	    //Return amount of iterations it took to exceed the limit
@@ -66,6 +101,10 @@ public class mandelCalc {
 	
 	public int mandelmath(float x, float y) {
 		return mandelmath((double)x, (double)y);
+	}
+	
+	public void redraw() {
+		drawMandel();
 	}
 	
 	public void zoom(double x, double y, double scale) {

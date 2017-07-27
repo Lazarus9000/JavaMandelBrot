@@ -11,14 +11,19 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
+import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.CheckBox;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import javafx.scene.paint.Color;
 
 public class JavafxSample extends Application {
 	// Inititialize renderer
@@ -94,12 +99,18 @@ public class JavafxSample extends Application {
 			
 		// Add image to group
 		group.getChildren().add(imageView);
-		precisionCheck.setText("Toggle high precision");
-		precisionCheck.setFont(new Font("Tahoma", 12));
-		precisionCheck.setOnAction(setprecision);
 		
-	    group.getChildren().add(precisionCheck);
-	    // Creating a Scene by passing the group object, height and width
+		//Instantiate and add checkbox
+		precisionCheck.setText("Toggle high precision");
+		precisionCheck.setTextFill(Color.WHITE);
+		
+		precisionCheck.setBackground(new Background(new BackgroundFill(Color.BLACK,CornerRadii.EMPTY, Insets.EMPTY)));
+		precisionCheck.setFont(new Font("Tahoma", 12));
+		
+		precisionCheck.setOnAction(setprecision);
+		group.getChildren().add(precisionCheck);
+	    
+		// Creating a Scene by passing the group object, height and width
 		Scene scene = new Scene(group, 400, 400);
 
 		// Add listener for mouseclicks
@@ -131,7 +142,10 @@ public class JavafxSample extends Application {
 	        if (event.getSource() instanceof CheckBox) {
 	            CheckBox chk = (CheckBox) event.getSource();
 	            System.out.println("Action performed on checkbox " + chk.getText() + " - " + chk.isSelected());
-	            
+	            render.setPrecision(chk.isSelected());
+	            render.redraw();
+	            image = SwingFXUtils.toFXImage(render.outputImage, null);
+				imageView.setImage(image);
 	        }
 	    }
 	};
@@ -153,19 +167,10 @@ public class JavafxSample extends Application {
 				timerout = new Timer();
 				timerout.scheduleAtFixedRate(new recZoom((int) e.getX(), (int) e.getY(), 0.51), 0, 50);
 				break;
-
 			default:
 				System.out.println("Mouse event not recognized");
 				return;
 			}
-
-			// Debug
-			// System.out.println("mouse click detected! " + e.getButton() + "
-			// x: " + e.getX());
-
-			// Redraw
-			image = SwingFXUtils.toFXImage(render.outputImage, null);
-			imageView.setImage(image);
 		}
 	};
 
@@ -185,15 +190,10 @@ public class JavafxSample extends Application {
 				timerout.purge();
 				System.out.println("right mouse up");
 				break;
-
 			default:
 				System.out.println("Mouse event not recognized");
 				return;
 			}
-
-			// Redraw
-			image = SwingFXUtils.toFXImage(render.outputImage, null);
-			imageView.setImage(image);
 		}
 	};
 
