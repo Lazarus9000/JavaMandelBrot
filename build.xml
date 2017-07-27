@@ -2,20 +2,18 @@
 <project default="create_run_jar" name="Create Runnable Jar for Project JavaMandelBrot">
     <!--this file was created by Eclipse Runnable JAR Export Wizard-->
     <!--ANT 1.7 is required                                        -->
-	<property name="build" location="build"/>
-	<property name="dir.buildfile" value="."/>
-	    <property name="dir.workspace" value="${dir.buildfile}"/>
-	    <property name="dir.jarfile" value="C:/Users/LAK/Documents/gitkraken/JavaMandelBrot/build"/>
-	
-	<mkdir dir="${build}"/>
-	<target name="create_run_jar">
-    	
-        <jar destfile="${build}/holdtozoom.jar" filesetmanifest="mergewithoutmain" >
+    <!--define folder properties-->
+    <property name="dir.buildfile" value="."/>
+    <property name="dir.workspace" value="C:/Users/LAK/workspace"/>
+    <property name="dir.jarfile" value="${dir.buildfile}/build"/>
+	<delete file="build/mandelbrotFXf.jar"/>
+    <target name="create_run_jar">
+        <jar destfile="${dir.jarfile}/mandelbrotFXf.jar" filesetmanifest="mergewithoutmain">
             <manifest>
                 <attribute name="Main-Class" value="JavafxSample"/>
-                <attribute name="Class-Path" value="/"/>
+                <attribute name="Class-Path" value="."/>
             </manifest>
-        	<fileset dir="C:/Users/LAK/Documents/gitkraken/JavaMandelBrot"/>
+            <fileset dir="${dir.buildfile}"/>
         </jar>
     </target>
 </project>
