@@ -18,4 +18,4 @@ On windows you can also just open the file using explorer.
 
 Todo: 
 Migrate to android - https://www.infoq.com/articles/Building-JavaFX-Android-Apps
-Implement histogram coloring and smooth shading - https://en.wikipedia.org/wiki/Mandelbrot_set#Computer_drawings
+Smooth shading - https://en.wikipedia.org/wiki/Mandelbrot_set#Computer_drawings
