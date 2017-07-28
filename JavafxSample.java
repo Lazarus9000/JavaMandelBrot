@@ -27,7 +27,8 @@ import javafx.scene.paint.Color;
 
 public class JavafxSample extends Application {
 	// Inititialize renderer
-	mandelCalc render = new mandelCalc(400, 400);
+	int height = 400, width = 400;
+	mandelCalc render = new mandelCalc(height, width);
 	// Convert from BufferedImage to javaFX image
 	Image image = SwingFXUtils.toFXImage(render.outputImage, null);
 	ImageView imageView = new ImageView();
@@ -111,7 +112,7 @@ public class JavafxSample extends Application {
 		group.getChildren().add(precisionCheck);
 	    
 		// Creating a Scene by passing the group object, height and width
-		Scene scene = new Scene(group, 400, 400);
+		Scene scene = new Scene(group, height, width);
 
 		// Add listener for mouseclicks
 		imageView.addEventFilter(MouseEvent.MOUSE_PRESSED, mouseZoomstart);
@@ -124,8 +125,8 @@ public class JavafxSample extends Application {
 		primaryStage.setScene(scene);
 
 		// Maintain fixed size window
-		primaryStage.setHeight(400);
-		primaryStage.setWidth(400);
+		primaryStage.setHeight(height);
+		primaryStage.setWidth(width);
 		primaryStage.setResizable(false);
 
 		// Displaying the contents of the stage

@@ -1,6 +1,8 @@
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 
+import javafx.scene.effect.ColorAdjust;
+
 public class mandelCalc {
 	//consider implementing using bigdecimal - requires reimplementing a lot of arithmetic though
 	//private BigDecimal bxmin = new BigDecimal("0.0");
@@ -13,6 +15,7 @@ public class mandelCalc {
 	private int imgheight = 800;
 	
 	public BufferedImage outputImage;
+	public BufferedImage tempout;
 	
 	//These control the math calculations
 	//higher iterations giver longer computation
@@ -48,6 +51,7 @@ public class mandelCalc {
 	public mandelCalc(int width, int height) {
 		imgwidth = width;
 		imgheight = height;
+		tempout = new BufferedImage(imgwidth, imgheight, BufferedImage.TYPE_INT_RGB);
 		outputImage = new BufferedImage(imgwidth, imgheight, BufferedImage.TYPE_INT_RGB);
         drawMandel();
 	}
@@ -175,15 +179,23 @@ public class mandelCalc {
         
         //System.out.print("hist 20: " + histogram[20]);
         int total = 0;
-		for (int i = 0; i < iterations; i ++) {
+        int[] sumhist = new int[iterations+1];
+        for (int i = 0; i < iterations; i ++) {
 		  total += histogram[i];
+		  sumhist[i] = histogram[i];
+		  if(i > 0) {
+			  sumhist[i] += sumhist[i-1];
+		  }
 		}
+		
+		
+		
         //System.out.println("Total: " +total);
         for ( int rc = 0; rc < imgheight; rc++ ) {
       	  for ( int cc = 0; cc < imgwidth; cc++ ) {
       		  	  
-      		      float histcolor = histogram[preRender[cc][rc]] / (float)total;
-        		  histcolor = Math.min(histcolor, 1.0f);
+      		      float histcolor = sumhist[preRender[cc][rc]] /  (float)total;
+        		  
       		      //histcolor = mapValue(histcolor, 0f, (float)total, 0.0f, 1.0f);
       		      //Consider the colouring algorithms mentioned on the wiki
         		  //https://en.wikipedia.org/wiki/Mandelbrot_set#Computer_drawings
@@ -198,10 +210,58 @@ public class mandelCalc {
         		  B = mapValue((float)mandelResult, (float)iterations/3*1.5f, (float)iterations, 0.0f, 1.0f);
 	
         		  //Convert the color to the proper datatype
-        		  int testrgb = new Color(histcolor, histcolor, histcolor).getRGB();
+        		  //System.out.println(histcolor);
+        		  if ((float)histcolor > 1.0f) {
+        			  int hat = 1;
+        			  hat = hat +1;
+        		  }
+        		  int testrgb = Color.HSBtoRGB((float)histcolor, 1.0f, (float)histcolor);
         		  
         		  //set the pixel
-        		  outputImage.setRGB(cc, rc,  testrgb);
+        		  tempout.setRGB(cc, rc,  testrgb);
+        	  }
+        }
+        
+        //Despeckle - removes single black pixels
+        for ( int rc = 1; rc < imgheight-1; rc++ ) {
+        	  for ( int cc = 1; cc < imgwidth-1; cc++ ) {
+        		  if(tempout.getRGB(rc, cc) == Color.BLACK.getRGB()) {
+        			  if (tempout.getRGB(rc+1, cc) != Color.BLACK.getRGB() ||
+    					  tempout.getRGB(rc-1, cc) != Color.BLACK.getRGB() ||
+						  tempout.getRGB(rc, cc+1) != Color.BLACK.getRGB() ||
+						  tempout.getRGB(rc, cc-1) != Color.BLACK.getRGB()) {
+        				 
+        				  Color meancolor = new Color(tempout.getRGB(rc+1, cc));
+        				  int sumr = meancolor.getRed();
+        				  int sumg = meancolor.getGreen();
+        				  int sumb = meancolor.getBlue();
+        				  
+        				  meancolor = new Color(tempout.getRGB(rc-1, cc));
+        				  sumr += meancolor.getRed();
+        				  sumg += meancolor.getGreen();
+        				  sumb += meancolor.getBlue();
+        				  
+        				  meancolor = new Color(tempout.getRGB(rc, cc+1));
+        				  sumr += meancolor.getRed();
+        				  sumg += meancolor.getGreen();
+        				  sumb += meancolor.getBlue();
+        				  
+        				  meancolor = new Color(tempout.getRGB(rc, cc-1));
+        				  sumr += meancolor.getRed();
+        				  sumg += meancolor.getGreen();
+        				  sumb += meancolor.getBlue();
+        				  
+        				  Color resultcolor = new Color(sumr/4, sumg/4, sumb/4);
+        				  
+        				  outputImage.setRGB(rc, cc, resultcolor.getRGB());
+        			  } else {
+        				  outputImage.setRGB(rc, cc,  tempout.getRGB(rc, cc));
+        			  }
+        		 
+        		  
+	        	  } else {
+	        		  outputImage.setRGB(rc, cc, tempout.getRGB(rc, cc));
+	        	  }
         	  }
         }
 	}
