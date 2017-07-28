@@ -150,6 +150,11 @@ public class mandelCalc {
         int mandelResult = 0;
         float R, G, B;
 		
+        //Used for histogram coloring
+        int[][] preRender = new int[imgwidth][imgheight];
+        //Histogram
+    	int[] histogram = new int[iterations+1];
+        
         //Loop through all pixels
         for ( int rc = 0; rc < imgheight; rc++ ) {
         	  for ( int cc = 0; cc < imgwidth; cc++ ) {
@@ -159,8 +164,28 @@ public class mandelCalc {
         		  
         		  //Do the mandelbrot calculation for the current point
         		  mandelResult = mandelmath(tempx,tempy);
-
-        		  //Consider the colouring algorithms mentioned on the wiki
+        		  
+        		  //Add to histogram
+        		  histogram[mandelResult]++;
+        		  
+        		  //Save result
+        		  preRender[cc][rc] = mandelResult;
+        	  }
+        }
+        
+        //System.out.print("hist 20: " + histogram[20]);
+        int total = 0;
+		for (int i = 0; i < iterations; i ++) {
+		  total += histogram[i];
+		}
+        //System.out.println("Total: " +total);
+        for ( int rc = 0; rc < imgheight; rc++ ) {
+      	  for ( int cc = 0; cc < imgwidth; cc++ ) {
+      		  	  
+      		      float histcolor = histogram[preRender[cc][rc]] / (float)total;
+        		  histcolor = Math.min(histcolor, 1.0f);
+      		      //histcolor = mapValue(histcolor, 0f, (float)total, 0.0f, 1.0f);
+      		      //Consider the colouring algorithms mentioned on the wiki
         		  //https://en.wikipedia.org/wiki/Mandelbrot_set#Computer_drawings
         		  
         		  //for the range first range the color will be increasingly red 
@@ -173,7 +198,7 @@ public class mandelCalc {
         		  B = mapValue((float)mandelResult, (float)iterations/3*1.5f, (float)iterations, 0.0f, 1.0f);
 	
         		  //Convert the color to the proper datatype
-        		  int testrgb = new Color(R, G, B).getRGB();
+        		  int testrgb = new Color(histcolor, histcolor, histcolor).getRGB();
         		  
         		  //set the pixel
         		  outputImage.setRGB(cc, rc,  testrgb);
