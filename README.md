@@ -19,3 +19,4 @@ On windows you can also just open the file using explorer.
 Todo: 
 Migrate to android - https://www.infoq.com/articles/Building-JavaFX-Android-Apps
 Smooth shading - https://en.wikipedia.org/wiki/Mandelbrot_set#Computer_drawings
+Other gradients - https://stackoverflow.com/questions/30157346/convert-grayscale-to-color-gradient-in-java
