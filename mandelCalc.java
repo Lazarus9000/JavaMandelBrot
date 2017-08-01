@@ -19,10 +19,11 @@ public class mandelCalc {
 	
 	//These control the math calculations
 	//higher iterations giver longer computation
-	private int iterations = 200;
+	private int iterations = 100;
 	//Limit affects appearance and to some degree computation time
-	private int limit = 6;
+	private int limit = 600;
 	
+	private int bins = 1200;
 	//These are used for math, declared here to save time on declarations
 	private double re = 0;
 	private double im = 0;
@@ -31,6 +32,9 @@ public class mandelCalc {
 	private double x_new = 0;
 	private float fx_new = 0;
 	private int iter = 0;
+	
+	
+	private double escape = 0;
 	
 	//For letting the wold now the current zoom
 	private double extscale = 0;
@@ -79,6 +83,9 @@ public class mandelCalc {
 				x = x_new;
 				iter++;
 			}
+		    
+		    escape = x*x+y*y;
+		    
 		} else {
 			fre = (float)x;
 			fim = (float)y;
@@ -96,8 +103,12 @@ public class mandelCalc {
 				fx = fx_new;
 				iter++;
 		    }
+		    
+		    escape = fx*fx+fy*fy;
 	    }
 	    
+		
+		
 	    //Return amount of iterations it took to exceed the limit
 		return iter;
 		
@@ -156,8 +167,10 @@ public class mandelCalc {
 		
         //Used for histogram coloring
         int[][] preRender = new int[imgwidth][imgheight];
+        float[][] fpreRender = new float[imgwidth][imgheight];
         //Histogram
-    	int[] histogram = new int[iterations+1];
+    	//int[] histogram = new int[iterations+1];
+    	int[] histogram = new int[bins+1];
         
         //Loop through all pixels
         for ( int rc = 0; rc < imgheight; rc++ ) {
@@ -168,19 +181,52 @@ public class mandelCalc {
         		  
         		  //Do the mandelbrot calculation for the current point
         		  mandelResult = mandelmath(tempx,tempy);
+        		  double mandelResultd = 0;
         		  
+        		  /*smooth shading 1st attempt*/
+        		  if ( mandelResult < iterations ) {
+          		    // sqrt of inner term removed using log simplification rules.
+          		    double log_zn = Math.log( tempx*tempx + tempy*tempy ) / (double)2.0;
+          		    double nu = Math.log( log_zn / Math.log(2) ) / Math.log(2);
+          		    // Rearranging the potential function.
+          		    // Dividing log_zn by log(2) instead of log(N = 1<<8)
+          		    // because we want the entire palette to range from the
+          		    // center to radius 2, NOT our bailout radius.
+          		  //mandelResultd = mandelResult + 1.0f - nu;
+          		  mandelResultd = mandelResult + 1.0f - Math.log(Math.log(Math.abs(escape/2)))/Math.log(2);
+          		  } else {
+          			mandelResultd = (double)mandelResult;
+          		  }
+          		  double color1 = Math.floor(mandelResultd);
+          		  double color2 = Math.floor(mandelResultd+1);
+          		  // iteration % 1 = fractional part of iteration.
+          		  int cresult = (int)((color1 + (mandelResultd % 1)) * (color2-color1));
+                  cresult = Math.min(cresult, iterations);
+        		  if (cresult > iterations) {
+        			  int lol = 1;
+        			  lol = lol;
+        		  }
+        		  
+        		  /* smooth shading 2nd attempt */
+        		  double sresult = mandelResult + 1 - Math.log(Math.log(escape))/Math.log(2);
+        		  if ( mandelResult < iterations ) {
+        			  sresult = sresult/(float)iterations;
+        		  } else {
+        			  sresult = 1;
+        		  }
         		  //Add to histogram
-        		  histogram[mandelResult]++;
-        		  
+        		  //histogram[(int)Math.min(sresult*iterations, iterations)]++;
+        		  histogram[(int)(sresult*bins)]++;
         		  //Save result
-        		  preRender[cc][rc] = mandelResult;
+        		  preRender[cc][rc] = (int)sresult;
+        		  fpreRender[cc][rc] = (float) sresult;
         	  }
         }
         
         //System.out.print("hist 20: " + histogram[20]);
         int total = 0;
-        int[] sumhist = new int[iterations+1];
-        for (int i = 0; i < iterations; i ++) {
+        int[] sumhist = new int[bins+1];
+        for (int i = 0; i < bins-1; i ++) {
 		  total += histogram[i];
 		  sumhist[i] = histogram[i];
 		  if(i > 0) {
@@ -194,7 +240,7 @@ public class mandelCalc {
         for ( int rc = 0; rc < imgheight; rc++ ) {
       	  for ( int cc = 0; cc < imgwidth; cc++ ) {
       		  	  
-      		      float histcolor = sumhist[preRender[cc][rc]] /  (float)total;
+      		      double histcolor = sumhist[(int)(fpreRender[rc][cc]*bins)] /  (double)total;
         		  
       		      //histcolor = mapValue(histcolor, 0f, (float)total, 0.0f, 1.0f);
       		      //Consider the colouring algorithms mentioned on the wiki
@@ -210,15 +256,19 @@ public class mandelCalc {
         		  B = mapValue((float)mandelResult, (float)iterations/3*1.5f, (float)iterations, 0.0f, 1.0f);
 	
         		  //Convert the color to the proper datatype
-        		  //System.out.println(histcolor);
-        		  if ((float)histcolor > 1.0f) {
-        			  int hat = 1;
-        			  hat = hat +1;
-        		  }
-        		  int testrgb = Color.HSBtoRGB((float)histcolor, 1.0f, (float)histcolor);
+
+        		  
+        	      // Used to avoid floating point issues with points inside the set.
+
+        		 int testrgb = Color.HSBtoRGB((float)histcolor, 1.0f, (float)histcolor);
         		  
         		  //set the pixel
-        		  tempout.setRGB(cc, rc,  testrgb);
+        		  //tempout.setRGB(cc, rc,  testrgb);
+        		  int raw = (int)(fpreRender[rc][cc]*255.0f);
+        		  Color asdf = new Color(raw,raw,raw);
+        		  int farv = (int)(histcolor*255);
+        		  Color as = new Color(farv,farv,farv);
+        		  tempout.setRGB(rc, cc, as.getRGB());
         	  }
         }
         
