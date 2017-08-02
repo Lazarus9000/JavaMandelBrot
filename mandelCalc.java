@@ -152,7 +152,7 @@ public class mandelCalc {
 		ymin = newCentery - yscale;
 		ymax = newCentery + yscale;
 		
-		if(xscale < 0.000002) {
+		if(xscale < 0.00002) {
 			precision = true;
 		}
 		
