@@ -172,6 +172,7 @@ public class mandelCalc {
         //Used for histogram coloring
         int[][] preRender = new int[imgwidth][imgheight];
         float[][] fpreRender = new float[imgwidth][imgheight];
+        double[][] dpreRender = new double[imgwidth][imgheight];
         //Histogram
     	//int[] histogram = new int[iterations+1];
     	int[] histogram = new int[bins];
@@ -191,15 +192,20 @@ public class mandelCalc {
         		  //https://stackoverflow.com/questions/369438/smooth-spectrum-for-mandelbrot-set-rendering
         		  double sresult = mandelResult + 1 - Math.log(Math.log(escape))/Math.log(2);
         		  if ( mandelResult < iterations ) {
-        			  sresult = sresult/(float)iterations;
+        			  sresult = sresult/(double)iterations;
         		  } else {
-        			  sresult = 1.0f;
+        			  sresult = 0.99f;
         		  }
+        		  
+        		  double presult = Math.max(sresult*sresult*bins,1);
+        		  double sqresult = Math.cbrt(sresult);
+        		  sresult = sqresult;
         		  //Add to histogram
-        		  histogram[(int)(sresult*bins)-1]++;
+        		  histogram[(int)(sresult*bins-1)]++;
         		  //Save result
         		  preRender[cc][rc] = (int)sresult;
         		  fpreRender[cc][rc] = (float)sresult;
+        		  dpreRender[cc][rc] = (double)(sresult);
         	  }
         }
         
@@ -217,11 +223,13 @@ public class mandelCalc {
         Color[] palette = colors.get256(step);
         step++;
         
+        Color[] palette2 = colors.get256(true);
+        
 		for ( int rc = 0; rc < imgheight; rc++ ) {
       	  for ( int cc = 0; cc < imgwidth; cc++ ) {
       		  	  
       		      //Final step of histogram coloring
-      		      double histcolor = sumhist[(int)(fpreRender[rc][cc]*bins)-1] /  (double)total;
+      		      double histcolor = sumhist[(int)(dpreRender[rc][cc]*bins-1)] /  (double)total;
         		  
       		      //set the pixel
         		  
@@ -229,7 +237,7 @@ public class mandelCalc {
       		      int testrgb = Color.HSBtoRGB(1.0f, (float)histcolor, (float)histcolor);
       		      
       		      //test of pattern
-      		      Color testpattern = palette[(int)(histcolor*255)];
+      		      Color testpattern = palette2[(int)(histcolor*255)];
       		      
       		      //Scale color to greyscale values
         		  int farv = (int)(histcolor*255);

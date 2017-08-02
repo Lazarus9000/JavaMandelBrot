@@ -17,12 +17,29 @@ public class palette {
 		}
 	}
 		
-	private Colors[] colors = {
+	/*private Colors[] colors = {
 			new Colors(100, new Color(255,0,0)), 
-			new Colors(200, new Color(0,255,0)), 
+			new Colors(100, new Color(0,255,0)), 
+			new Colors(20, new Color(0,0,255)),
+			new Colors(50, new Color(255,0,0)), 
+			new Colors(10, new Color(0,255,0)), 
 			new Colors(300, new Color(0,0,255))
+	};*/
+		
+	/*private Colors[] colors = {
+			new Colors(200, new Color(0,0,0)), 
+			new Colors(20, new Color(0,0,100)), 
+			new Colors(20, new Color(0,0,255)),
+			new Colors(15, new Color(155,155,155)), 
+			new Colors(10, new Color(255,255,255)), 
+			new Colors(300, new Color(0,0,255))
+	};*/
+	
+	private Colors[] colors = {
+			new Colors(256, new Color(0,255,255)), 
+			new Colors(20, new Color(255,255,255))
 	};
-						
+	
 	private int totalduration = calcDuration(colors);
 	
 	private Color[] pattern = new Color[totalduration];
@@ -72,6 +89,30 @@ public class palette {
 
 			return both;
 		}
+	}
+	
+	public Color[] get256() {
+		return get256(false);
+	}
+	
+	public Color[] get256(boolean dark) {
+		Color[] result = new Color[256];
+		if(dark) {
+			Color[] darkcolors = Arrays.copyOfRange(pattern, 0, 256);
+			for(int i = 0; i < 256; i++) {
+				int r = (int)(darkcolors[i].getRed() * (i/(float)256));
+				int g = (int)(darkcolors[i].getGreen() * (i/(float)256));
+				int b = (int)(darkcolors[i].getBlue() * (i/(float)256));
+				darkcolors[i] = new Color(r,g,b);
+			}
+			result = darkcolors;
+		}
+		
+		if(!dark) {
+			result =  Arrays.copyOfRange(pattern, 0, 256);
+		}
+		
+		return result;
 	}
 	
 	private Color colormix(Color c1, Color c2, float mix) {
