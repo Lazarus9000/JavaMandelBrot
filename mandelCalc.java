@@ -152,6 +152,10 @@ public class mandelCalc {
 		ymin = newCentery - yscale;
 		ymax = newCentery + yscale;
 		
+		if(xscale < 0.000002) {
+			precision = true;
+		}
+		
 		//Draw new image using the coordinates
 		drawMandel();
 		

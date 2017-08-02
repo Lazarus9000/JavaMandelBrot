@@ -102,16 +102,6 @@ public class JavafxSample extends Application {
 		// Add image to group
 		group.getChildren().add(imageView);
 		
-		//Instantiate and add checkbox
-		precisionCheck.setText("Toggle high precision");
-		precisionCheck.setTextFill(Color.WHITE);
-		
-		precisionCheck.setBackground(new Background(new BackgroundFill(Color.BLACK,CornerRadii.EMPTY, Insets.EMPTY)));
-		precisionCheck.setFont(new Font("Tahoma", 12));
-		
-		precisionCheck.setOnAction(setprecision);
-		group.getChildren().add(precisionCheck);
-	    
 		// Creating a Scene by passing the group object, height and width
 		Scene scene = new Scene(group, height, width);
 
@@ -137,20 +127,6 @@ public class JavafxSample extends Application {
 	public static void main(String args[]) {
 		launch(args);
 	}
-	
-	//Handler for precision
-	EventHandler setprecision = new EventHandler<ActionEvent>() {
-	    public void handle(ActionEvent event) {
-	        if (event.getSource() instanceof CheckBox) {
-	            CheckBox chk = (CheckBox) event.getSource();
-	            System.out.println("Action performed on checkbox " + chk.getText() + " - " + chk.isSelected());
-	            render.setPrecision(chk.isSelected());
-	            render.redraw();
-	            image = SwingFXUtils.toFXImage(render.outputImage, null);
-				imageView.setImage(image);
-	        }
-	    }
-	};
 
 	// Handler for mouseclicks for navigating the set
 	EventHandler<MouseEvent> mouseZoomstart = new EventHandler<MouseEvent>() {
