@@ -42,6 +42,10 @@ public class mandelCalc {
 	//Precision toggle
 	private boolean precision = false;
 	
+	//Coloring
+	palette colors = new palette();
+	int step = 0;
+	
 	public boolean getPrecision() {
 		return precision;
 	}
@@ -210,6 +214,9 @@ public class mandelCalc {
 		  }
 		}
 		
+        Color[] palette = colors.get256(step);
+        step++;
+        
 		for ( int rc = 0; rc < imgheight; rc++ ) {
       	  for ( int cc = 0; cc < imgwidth; cc++ ) {
       		  	  
@@ -221,10 +228,13 @@ public class mandelCalc {
       		      //A bit psychedelic
       		      int testrgb = Color.HSBtoRGB(1.0f, (float)histcolor, (float)histcolor);
       		      
+      		      //test of pattern
+      		      Color testpattern = palette[(int)(histcolor*255)];
+      		      
       		      //Scale color to greyscale values
         		  int farv = (int)(histcolor*255);
         		  Color as = new Color(farv,farv,farv);
-        		  tempout.setRGB(rc, cc, testrgb);
+        		  tempout.setRGB(rc, cc, testpattern.getRGB());
         	  }
         }
         

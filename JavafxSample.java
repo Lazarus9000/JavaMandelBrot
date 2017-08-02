@@ -36,6 +36,7 @@ public class JavafxSample extends Application {
 	Timer timerout;
 	CheckBox precisionCheck = new CheckBox();
     boolean precision = false;
+    
 
 	class recZoom extends TimerTask {
 
