@@ -1,6 +1,8 @@
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 
+import javafx.scene.effect.ColorAdjust;
+
 public class mandelCalc {
 	//consider implementing using bigdecimal - requires reimplementing a lot of arithmetic though
 	//private BigDecimal bxmin = new BigDecimal("0.0");
@@ -13,13 +15,15 @@ public class mandelCalc {
 	private int imgheight = 800;
 	
 	public BufferedImage outputImage;
+	public BufferedImage tempout;
 	
 	//These control the math calculations
 	//higher iterations giver longer computation
-	private int iterations = 200;
+	private int iterations = 100;
 	//Limit affects appearance and to some degree computation time
-	private int limit = 6;
+	private int limit = 600;
 	
+	private int bins = 12000;
 	//These are used for math, declared here to save time on declarations
 	private double re = 0;
 	private double im = 0;
@@ -28,6 +32,9 @@ public class mandelCalc {
 	private double x_new = 0;
 	private float fx_new = 0;
 	private int iter = 0;
+	
+	
+	private double escape = 0;
 	
 	//For letting the wold now the current zoom
 	private double extscale = 0;
@@ -48,6 +55,7 @@ public class mandelCalc {
 	public mandelCalc(int width, int height) {
 		imgwidth = width;
 		imgheight = height;
+		tempout = new BufferedImage(imgwidth, imgheight, BufferedImage.TYPE_INT_RGB);
 		outputImage = new BufferedImage(imgwidth, imgheight, BufferedImage.TYPE_INT_RGB);
         drawMandel();
 	}
@@ -75,6 +83,9 @@ public class mandelCalc {
 				x = x_new;
 				iter++;
 			}
+		    
+		    escape = x*x+y*y;
+		    
 		} else {
 			fre = (float)x;
 			fim = (float)y;
@@ -92,8 +103,12 @@ public class mandelCalc {
 				fx = fx_new;
 				iter++;
 		    }
+		    
+		    escape = fx*fx+fy*fy;
 	    }
 	    
+		
+		
 	    //Return amount of iterations it took to exceed the limit
 		return iter;
 		
@@ -150,6 +165,13 @@ public class mandelCalc {
         int mandelResult = 0;
         float R, G, B;
 		
+        //Used for histogram coloring
+        int[][] preRender = new int[imgwidth][imgheight];
+        float[][] fpreRender = new float[imgwidth][imgheight];
+        //Histogram
+    	//int[] histogram = new int[iterations+1];
+    	int[] histogram = new int[bins];
+        
         //Loop through all pixels
         for ( int rc = 0; rc < imgheight; rc++ ) {
         	  for ( int cc = 0; cc < imgwidth; cc++ ) {
@@ -159,24 +181,93 @@ public class mandelCalc {
         		  
         		  //Do the mandelbrot calculation for the current point
         		  mandelResult = mandelmath(tempx,tempy);
-
-        		  //Consider the colouring algorithms mentioned on the wiki
-        		  //https://en.wikipedia.org/wiki/Mandelbrot_set#Computer_drawings
+        		  double mandelResultd = 0;
         		  
-        		  //for the range first range the color will be increasingly red 
-        		  R = mapValue((float)mandelResult, 0f, (float)iterations/6, 0.0f, 1.0f);
+        		  /* smooth shading */
+        		  //https://stackoverflow.com/questions/369438/smooth-spectrum-for-mandelbrot-set-rendering
+        		  double sresult = mandelResult + 1 - Math.log(Math.log(escape))/Math.log(2);
+        		  if ( mandelResult < iterations ) {
+        			  sresult = sresult/(float)iterations;
+        		  } else {
+        			  sresult = 1.0f;
+        		  }
+        		  //Add to histogram
+        		  histogram[(int)(sresult*bins)-1]++;
+        		  //Save result
+        		  preRender[cc][rc] = (int)sresult;
+        		  fpreRender[cc][rc] = (float)sresult;
+        	  }
+        }
+        
+        //inspired by https://en.wikipedia.org/wiki/Mandelbrot_set#Histogram_coloring
+        int total = 0;
+        int[] sumhist = new int[bins];
+        for (int i = 0; i < bins-1; i ++) {
+		  total += histogram[i];
+		  sumhist[i] = histogram[i];
+		  if(i > 0) {
+			  sumhist[i] += sumhist[i-1];
+		  }
+		}
+		
+		for ( int rc = 0; rc < imgheight; rc++ ) {
+      	  for ( int cc = 0; cc < imgwidth; cc++ ) {
+      		  	  
+      		      //Final step of histogram coloring
+      		      double histcolor = sumhist[(int)(fpreRender[rc][cc]*bins)-1] /  (double)total;
         		  
-        		  //for the next range the color will increasingly get green color added, making the color yellow
-        		  G = mapValue((float)mandelResult, (float)iterations/6, (float)iterations/3*1.5f, 0.0f, 1.0f);
+      		      //set the pixel
         		  
-        		  //And the final range will have increasingly blue color added, making the resulting color  white
-        		  B = mapValue((float)mandelResult, (float)iterations/3*1.5f, (float)iterations, 0.0f, 1.0f);
-	
-        		  //Convert the color to the proper datatype
-        		  int testrgb = new Color(R, G, B).getRGB();
+      		      //A bit psychedelic
+      		      int testrgb = Color.HSBtoRGB(1.0f, (float)histcolor, (float)histcolor);
+      		      
+      		      //Scale color to greyscale values
+        		  int farv = (int)(histcolor*255);
+        		  Color as = new Color(farv,farv,farv);
+        		  tempout.setRGB(rc, cc, testrgb);
+        	  }
+        }
+        
+        //Despeckle - removes single black pixels
+        for ( int rc = 1; rc < imgheight-1; rc++ ) {
+        	  for ( int cc = 1; cc < imgwidth-1; cc++ ) {
+        		  if(tempout.getRGB(rc, cc) == Color.BLACK.getRGB()) {
+        			  if (tempout.getRGB(rc+1, cc) != Color.BLACK.getRGB() ||
+    					  tempout.getRGB(rc-1, cc) != Color.BLACK.getRGB() ||
+						  tempout.getRGB(rc, cc+1) != Color.BLACK.getRGB() ||
+						  tempout.getRGB(rc, cc-1) != Color.BLACK.getRGB()) {
+        				 
+        				  Color meancolor = new Color(tempout.getRGB(rc+1, cc));
+        				  int sumr = meancolor.getRed();
+        				  int sumg = meancolor.getGreen();
+        				  int sumb = meancolor.getBlue();
+        				  
+        				  meancolor = new Color(tempout.getRGB(rc-1, cc));
+        				  sumr += meancolor.getRed();
+        				  sumg += meancolor.getGreen();
+        				  sumb += meancolor.getBlue();
+        				  
+        				  meancolor = new Color(tempout.getRGB(rc, cc+1));
+        				  sumr += meancolor.getRed();
+        				  sumg += meancolor.getGreen();
+        				  sumb += meancolor.getBlue();
+        				  
+        				  meancolor = new Color(tempout.getRGB(rc, cc-1));
+        				  sumr += meancolor.getRed();
+        				  sumg += meancolor.getGreen();
+        				  sumb += meancolor.getBlue();
+        				  
+        				  Color resultcolor = new Color(sumr/4, sumg/4, sumb/4);
+        				  
+        				  outputImage.setRGB(rc, cc, resultcolor.getRGB());
+        			  } else {
+        				  outputImage.setRGB(rc, cc,  tempout.getRGB(rc, cc));
+        			  }
+        		 
         		  
-        		  //set the pixel
-        		  outputImage.setRGB(cc, rc,  testrgb);
+	        	  } else {
+	        		  outputImage.setRGB(rc, cc, tempout.getRGB(rc, cc));
+	        	  }
         	  }
         }
 	}
