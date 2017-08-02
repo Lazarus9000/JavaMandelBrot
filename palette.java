@@ -1,42 +1,75 @@
 import java.awt.Color;
-import java.awt.image.BufferedImage;
-
-import javafx.scene.effect.ColorAdjust;
+import java.lang.reflect.Array;
 
 public class palette {
-	//consider implementing using bigdecimal - requires reimplementing a lot of arithmetic though
-	//private BigDecimal bxmin = new BigDecimal("0.0");
-	//private double xmin = (double) -0.8, xmax = (double) -0.7;
-	private double xmin = (double) -2.0, xmax = (double) 1;
-	//private double ymin = (double) -0.3, ymax = (double) -0.2;
-	private  double ymin = (double) -1.5, ymax = (double) 1.5;
+	//Needs to have getter (and setter secondarily) for color gradients
+	//Produces gradients by linear interpolation between color points with distances
+	//Option for either end of gradient to always fade to black
 	
-	private int imgwidth = 800;
-	private int imgheight = 800;
+	class Colors {
+		int duration = 0;
+		Color color = new Color(0,0,0);
+		
+		public Colors(int inputduration, Color inputcolor) {
+			duration = inputduration;
+			color = inputcolor;
+		}
+	}
+		
+	private Colors[] colors = {
+			new Colors(200, new Color(1,1,1)), 
+			new Colors(300, new Color(0,0,0)), 
+			new Colors(400, new Color(1,1,1))
+	};
+						
+	private int totalduration = calcDuration(colors);
 	
-	public BufferedImage outputImage;
-	public BufferedImage tempout;
+	private Color[] pattern = new Color[totalduration];
 	
-	//These control the math calculations
-	//higher iterations giver longer computation
-	private int iterations = 200;
-	//Limit affects appearance and to some degree computation time
-	private int limit = 6;
+	public Color[] patternfun() {
+		int lastkey = 0;
+		int keyindex = 0;
+		int nextkeyindex = 1;
+		int nextkey = colors[keyindex].duration;
+		
+		for(int i = 0; i < totalduration; i++) {
+			float mix = (lastkey+nextkey)/(float)(i+lastkey);
+			pattern[i] = colormix(colors[keyindex].color, colors[nextkeyindex].color, mix);
+			
+			if(i >= nextkey) {
+				lastkey = nextkey;
+				keyindex++;
+				nextkey = colors[keyindex].duration;
+				
+				if(nextkeyindex != Array.getLength(colors)) {
+					nextkeyindex++;
+				} else {
+					nextkeyindex=0;
+				}
+			}
+		}
+		
+		return pattern;
+	}
 	
-	//These are used for math, declared here to save time on declarations
-	private double re = 0;
-	private double im = 0;
-	private float fre = 0;
-	private float fim = 0;
-	private double x_new = 0;
-	private float fx_new = 0;
-	private int iter = 0;
+	public Color[] getPattern() {
+		return pattern;
+	}
 	
-	//For letting the wold now the current zoom
-	private double extscale = 0;
+	private Color colormix(Color c1, Color c2, float mix) {
+		int r = (int)(c1.getRed()*mix+c2.getRed()*(1.0-mix));
+		int g = (int)(c1.getGreen()*mix+c2.getGreen()*(1.0-mix));
+		int b = (int)(c1.getBlue()*mix+c2.getBlue()*(1.0-mix));
+		return new Color(r,g,b);
+	}
 	
-	//Precision toggle
-	private boolean precision = false;
-	
+	private int calcDuration(Colors[] inputarray) {
+	//Calculate total duration
+		int tempdur = 0;
+		for(int i = 0; i < Array.getLength(inputarray); i++) {
+			tempdur += inputarray[i].duration;
+		}
+		return tempdur;
+	}
 	
 }
