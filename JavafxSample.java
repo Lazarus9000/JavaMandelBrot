@@ -15,6 +15,7 @@ import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -34,7 +35,8 @@ public class JavafxSample extends Application {
 	ImageView imageView = new ImageView();
 	Timer timerin;
 	Timer timerout;
-	CheckBox precisionCheck = new CheckBox();
+	CheckBox cyclic = new CheckBox();
+	CheckBox dark = new CheckBox();
     boolean precision = false;
     
 
@@ -102,6 +104,39 @@ public class JavafxSample extends Application {
 		// Add image to group
 		group.getChildren().add(imageView);
 		
+	    //Instantiate and add checkbox
+		cyclic.setText("Toggle cyclic colors");
+	    cyclic.setTextFill(Color.WHITE);
+	 
+	    cyclic.setBackground(new Background(new BackgroundFill(Color.BLACK,CornerRadii.EMPTY, Insets.EMPTY)));
+	    cyclic.setFont(new Font("Tahoma", 12));
+	 
+	    cyclic.setOnAction(setcyclic);
+	    cyclic.setLayoutY(25);
+	    group.getChildren().add(cyclic);
+		
+	  //Instantiate and add checkbox
+  		dark.setText("Toggle darkness(!)");
+  		dark.setTextFill(Color.WHITE);
+  	 
+  		dark.setBackground(new Background(new BackgroundFill(Color.BLACK,CornerRadii.EMPTY, Insets.EMPTY)));
+  		dark.setFont(new Font("Tahoma", 12));
+  	 
+  		dark.setOnAction(setdark);
+  		dark.setLayoutY(40);
+  	    group.getChildren().add(dark);
+
+	  	  ComboBox priorityComboBox = new ComboBox();
+	      priorityComboBox.getItems().addAll(
+	          "bw",
+	          "light",
+	          "psych",
+	          "std" 
+	      ); 
+	      priorityComboBox.setValue("bw");
+	      priorityComboBox.setOnAction(settheme);
+	      group.getChildren().add(priorityComboBox);
+	      
 		// Creating a Scene by passing the group object, height and width
 		Scene scene = new Scene(group, height, width);
 
@@ -127,6 +162,47 @@ public class JavafxSample extends Application {
 	public static void main(String args[]) {
 		launch(args);
 	}
+	
+	//Handler for cyclic
+	EventHandler setcyclic = new EventHandler<ActionEvent>() {
+		public void handle(ActionEvent event) {
+	          if (event.getSource() instanceof CheckBox) {
+	              CheckBox chk = (CheckBox) event.getSource();
+	              System.out.println("Action performed on checkbox " + chk.getText() + " - " + chk.isSelected());
+	              render.setcyclic(chk.isSelected());
+	              render.redraw();
+	              image = SwingFXUtils.toFXImage(render.outputImage, null);
+	        imageView.setImage(image);
+	          }
+	      }
+	};
+	
+	//Handler for dark
+		EventHandler setdark = new EventHandler<ActionEvent>() {
+			public void handle(ActionEvent event) {
+		          if (event.getSource() instanceof CheckBox) {
+		              CheckBox chk = (CheckBox) event.getSource();
+		              System.out.println("Action performed on checkbox " + chk.getText() + " - " + chk.isSelected());
+		              render.setdark(chk.isSelected());
+		              render.redraw();
+		              image = SwingFXUtils.toFXImage(render.outputImage, null);
+		              imageView.setImage(image);
+		          }
+		      }
+		};
+		
+		EventHandler settheme = new EventHandler<ActionEvent>() {
+			public void handle(ActionEvent event) {
+		          if (event.getSource() instanceof ComboBox) {
+		        	  ComboBox chk = (ComboBox) event.getSource();
+		              System.out.println("Action performed on combobox " + chk.getValue().toString());
+		              render.setTheme(chk.getValue().toString());
+		              render.redraw();
+		              image = SwingFXUtils.toFXImage(render.outputImage, null);
+		              imageView.setImage(image);
+		          }
+		      }
+		};
 
 	// Handler for mouseclicks for navigating the set
 	EventHandler<MouseEvent> mouseZoomstart = new EventHandler<MouseEvent>() {

@@ -41,9 +41,15 @@ public class mandelCalc {
 	
 	//Precision toggle
 	private boolean precision = false;
+
+	//cyclic toggle
+	private boolean cyclic = false;
+	
+	//dark toggle
+	private boolean dark = false;
 	
 	//Coloring
-	palette colors = new palette();
+	palette colors = new palette("bw");
 	int step = 0;
 	
 	public boolean getPrecision() {
@@ -52,6 +58,18 @@ public class mandelCalc {
 	
 	public void setPrecision(boolean prec) {
 		precision = prec;
+	}
+	
+	public void setcyclic(boolean cyc) {
+		cyclic = cyc;
+	}
+	
+	public void setdark(boolean onyx) {
+		dark = onyx;
+	}
+	
+	public void setTheme(String input) {
+		colors.setTheme(input);
 	}
 	
 	
@@ -224,8 +242,10 @@ public class mandelCalc {
 		  }
 		}
 		
-        Color[] palette = colors.get256(step);
-        step++;
+        Color[] palette = colors.get256((int)(step/1.0f), dark);
+        if(cyclic) { 
+        	step++;
+        }
         
         Color[] palette2 = colors.get256(true);
         
@@ -241,7 +261,7 @@ public class mandelCalc {
       		      int testrgb = Color.HSBtoRGB(1.0f, (float)histcolor, (float)histcolor);
       		      
       		      //test of pattern
-      		      Color testpattern = palette2[(int)(histcolor*255)];
+      		      Color testpattern = palette[(int)(histcolor*255)];
       		      
       		      //Scale color to greyscale values
         		  int farv = (int)(histcolor*255);
